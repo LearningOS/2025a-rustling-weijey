@@ -1,8 +1,6 @@
 /*
-	single linked list merge
-	This problem requires you to merge two ordered singly linked lists into one ordered singly linked list
+    单链表合并
 */
-// I AM NOT DONE
 
 use std::fmt::{self, Display, Formatter};
 use std::ptr::NonNull;
@@ -69,15 +67,62 @@ impl<T> LinkedList<T> {
             },
         }
     }
-	pub fn merge(list_a:LinkedList<T>,list_b:LinkedList<T>) -> Self
-	{
-		//TODO
-		Self {
-            length: 0,
-            start: None,
-            end: None,
+    pub fn merge(list_a: LinkedList<T>, list_b: LinkedList<T>) -> Self
+    where
+        T: PartialOrd,
+    {
+    // 消耗原链表节点并移动值到新链表，避免要求 Clone
+
+        let mut new_list = LinkedList::new();
+
+    // 获取起始指针
+        let mut cur_a = list_a.start;
+        let mut cur_b = list_b.start;
+
+    // 辅助：从原节点取值并返回下一个指针
+        unsafe fn take_node_val<T>(ptr: NonNull<Node<T>>) -> (T, Option<NonNull<Node<T>>>) {
+            // read next before taking ownership
+            let next = (*ptr.as_ptr()).next;
+            // take ownership of the node so we can move out the value
+            let boxed = Box::from_raw(ptr.as_ptr());
+            let val = boxed.val; // move value out
+            // boxed is dropped here, but its next pointer was already saved so we don't lose chain
+            (val, next)
         }
-	}
+
+    // 逐步比较头节点值并移动较小者到新链表
+        while cur_a.is_some() || cur_b.is_some() {
+            match (cur_a, cur_b) {
+                (Some(pa), Some(pb)) => {
+                    // compare values without taking ownership yet
+                    let va = unsafe { &(*pa.as_ptr()).val };
+                    let vb = unsafe { &(*pb.as_ptr()).val };
+                    if va <= vb {
+                        let (val, next) = unsafe { take_node_val(pa) };
+                        new_list.add(val);
+                        cur_a = next;
+                    } else {
+                        let (val, next) = unsafe { take_node_val(pb) };
+                        new_list.add(val);
+                        cur_b = next;
+                    }
+                }
+                (Some(pa), None) => {
+                    let (val, next) = unsafe { take_node_val(pa) };
+                    new_list.add(val);
+                    cur_a = next;
+                }
+                (None, Some(pb)) => {
+                    let (val, next) = unsafe { take_node_val(pb) };
+                    new_list.add(val);
+                    cur_b = next;
+                }
+                (None, None) => break,
+            }
+        }
+
+        new_list
+    }
 }
 
 impl<T> Display for LinkedList<T>

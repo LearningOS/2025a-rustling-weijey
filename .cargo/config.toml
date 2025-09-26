@@ -1,0 +1,28 @@
+# Project-local Cargo config
+
+# 1) Use sparse registry (smaller, faster index downloads)
+[registries.crates-io]
+protocol = "sparse"
+
+[source.crates-io]
+replace-with = "rsproxy-sparse"
+[source.rsproxy-sparse]
+registry = "sparse+https://rsproxy.cn/index/"
+
+## USTC (sparse)
+# [source.crates-io]
+# replace-with = "ustc"
+# [source.ustc]
+# registry = "sparse+https://mirrors.ustc.edu.cn/crates.io-index/"
+
+# 3) If cargo needs to fetch via git (non-sparse flows), prefer the git CLI.
+[net]
+git-fetch-with-cli = true
+
+# 5) Force Cargo to not use any HTTP proxy (workaround for WSL auto-proxy to localhost)
+[http]
+proxy = ""
+
+# 4) If you are behind an HTTP(S) proxy, you can set it here or via env vars.
+# [http]
+# proxy = "http://user:password@host:port"
