@@ -15,3 +15,22 @@ public/
 
 # Local Netlify folder
 .netlify
+
+# --- Local build/test artifacts & OS-specific ---
+*.exe
+*.obj
+*.rcgu.o
+*.dll
+*.so
+*.dylib
+*.log
+temp_*
+
+# --- Exercise-specific generated files ---
+exercises/tests/Cargo.toml
+exercises/tests/Cargo.lock
+exercises/tests/target/
+exercises/clippy/target/
+
+# --- Generated results ---
+.github/result/*.json
